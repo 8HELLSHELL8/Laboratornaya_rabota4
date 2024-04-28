@@ -1,0 +1,97 @@
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
+
+// titForTat - функция стратегии Тит-фор-тат.
+// В первом раунде всегда сотрудничаем, в последующих раундах копируем выбор противника из предыдущего раунда.
+func titForTat(roundNumber int, selfChoices, enemyChoices []bool) bool {
+	if roundNumber == 0 {
+		return true
+	}
+	return enemyChoices[roundNumber-1]
+}
+
+// alwaysBetray - функция стратегии Всегда предавать.
+// Всегда выбирает предательство.
+func alwaysBetray(roundNumber int, selfChoices, enemyChoices []bool) bool {
+	return false
+}
+
+// alwaysCooperate - функция стратегии Всегда сотрудничать.
+// Всегда выбирает сотрудничество.
+func alwaysCooperate(roundNumber int, selfChoices, enemyChoices []bool) bool {
+	return true
+}
+
+// playGame - функция, которая играет в игру с заданными стратегиями.
+func playGame(strategy1 func(int, []bool, []bool) bool, strategy2 func(int, []bool, []bool) bool) {
+	// Инициализируем генератор случайных чисел
+	rand.Seed(time.Now().UnixNano())
+
+	// Генерируем случайное количество раундов от 100 до 200
+	numRounds := rand.Intn(101) + 100
+
+	// Создаем срезы для отслеживания выборов стратегий
+	strategy1Choices := make([]bool, numRounds)
+	strategy2Choices := make([]bool, numRounds)
+
+	// Счетчики очков
+	score1 := 0
+	score2 := 0
+
+	// Проводим каждый раунд
+	for round := 0; round < numRounds; round++ {
+		// Выборы стратегий
+		choice1 := strategy1(round, strategy1Choices, strategy2Choices)
+		choice2 := strategy2(round, strategy2Choices, strategy1Choices)
+
+		// Сохраняем выборы в срезах
+		strategy1Choices[round] = choice1
+		strategy2Choices[round] = choice2
+
+		// Подсчитываем очки за раунд
+		if choice1 && choice2 {
+			// Оба сотрудничают
+			score1 += 24
+			score2 += 24
+		} else if !choice1 && !choice2 {
+			// Оба предают
+			score1 += 4
+			score2 += 4
+		} else if !choice1 && choice2 {
+			// Стратегия 1 предает, стратегия 2 сотрудничает
+			score1 += 20
+			score2 += 0
+		} else {
+			// Стратегия 1 сотрудничает, стратегия 2 предает
+			score1 += 0
+			score2 += 20
+		}
+	}
+
+	// Выводим результаты игры
+	fmt.Printf("Количество раундов: %d\n", numRounds)
+	fmt.Printf("Очки стратегии 1: %d\n", score1)
+	fmt.Printf("Очки стратегии 2: %d\n", score2)
+}
+
+func main() {
+	// Игра между стратегиями Тит-фор-тат и Всегда предавать
+	fmt.Println("Игра между стратегиями Тит-фор-тат и Всегда предавать:")
+	playGame(titForTat, alwaysBetray)
+	fmt.Println()
+
+	// Игра между стратегиями Всегда сотрудничать и Всегда предавать
+	fmt.Println("Игра между стратегиями Всегда сотрудничать и Всегда предавать:")
+	playGame(alwaysCooperate, alwaysBetray)
+	fmt.Println()
+
+	// Игра между стратегиями Тит-фор-тат и Всегда сотрудничать
+	fmt.Println("Игра между стратегиями Тит-фор-тат и Всегда сотрудничать:")
+	playGame(titForTat, alwaysCooperate)
+	fmt.Println()
+}

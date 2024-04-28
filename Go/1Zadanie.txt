@@ -1,0 +1,132 @@
+package main
+
+import (
+	"fmt"
+	"math"
+	"os"
+)
+
+func f(x float64) float64 {
+	return x*x - (2 - math.Exp(x))
+}
+
+func df(x float64) float64 {
+	return 2*x + math.Exp(x)
+}
+
+func bisection(a, b, epsilon float64) float64 {
+	N := 0
+	var c float64
+
+	for {
+		N++
+		c = (a + b) / 2
+		fc := f(c)
+		if math.Abs(fc) < epsilon {
+			break
+		}
+		if fc*f(a) < 0 {
+			b = c
+		} else {
+			a = c
+		}
+	}
+
+	fmt.Printf("Number of iterations: %d\n", N)
+	return c
+}
+
+func newton(x0, epsilon float64) float64 {
+	x := x0
+	N := 0
+
+	fmt.Printf("%-4s %-12s %-12s %-12s\n", "N", "x_n", "x_(n+1)", "x_(n+1) - x_n")
+
+	for {
+		N++
+		xNext := x - f(x)/df(x)
+
+		fmt.Printf("%-4d %-12.6f %-12.6f %-12.6f\n", N, x, xNext, xNext-x)
+
+		if math.Abs(xNext-x) < epsilon {
+			break
+		}
+
+		x = xNext
+	}
+
+	return x
+}
+
+func iterate(x0, epsilon float64) float64 {
+	N := 0
+	x := x0
+
+	fmt.Printf("%-4s %-12s %-12s %-12s\n", "N", "x_n", "x_(n+1)", "x_(n+1) - x_n")
+
+	for {
+		N++
+		xNext := x - f(x)/(2*x+math.Exp(x))
+
+		fmt.Printf("%-4d %-12.6f %-12.6f %-12.6f\n", N, x, xNext, xNext-x)
+
+		if math.Abs(xNext-x) < epsilon {
+			break
+		}
+
+		x = xNext
+	}
+
+	return x
+}
+
+func main() {
+	epsilon := 1e-4 // desired precision
+
+	fmt.Println("Choose your solution method: 1-bisection, 2-Newton, 3-Iterations")
+	var methodType int
+	_, err := fmt.Scanf("%d", &methodType)
+	if err != nil {
+		fmt.Println("Error reading input:", err)
+		os.Exit(1)
+	}
+
+	if methodType == 1 {
+		var a, b float64
+		fmt.Print("Input start coordinate a: ")
+		_, err = fmt.Scanf("%f", &a)
+		if err != nil {
+			fmt.Println("Error reading input:", err)
+			os.Exit(1)
+		}
+		fmt.Print("Input start coordinate b: ")
+		_, err = fmt.Scanf("%f", &b)
+		if err != nil {
+			fmt.Println("Error reading input:", err)
+			os.Exit(1)
+		}
+
+		root := bisection(a, b, epsilon)
+
+		fmt.Printf("Root: %.6f\n", root)
+		fmt.Printf("Initial interval: [%.6f, %.6f]\n", a, b)
+		fmt.Printf("Final interval: [%.6f, %.6f]\n", a, root)
+		fmt.Printf("Width of the final interval: %.6f\n", root-a)
+
+	} else if methodType == 2 {
+		x0 := 0.5 // initial guess
+
+		root := newton(x0, epsilon)
+
+		fmt.Printf("Root: %.6f\n", root)
+
+	} else if methodType == 3 {
+		x0 := 0.5 // initial guess
+
+		root := iterate(x0, epsilon)
+
+		fmt.Printf("Root: %.6f\n", root)
+	} else {
+		fmt.Println("Wrong input!")
+	}
+}

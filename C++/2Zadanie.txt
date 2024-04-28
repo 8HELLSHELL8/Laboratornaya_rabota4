@@ -1,0 +1,213 @@
+#include <iostream>
+#include <random>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <set>
+
+using namespace std;
+
+template<typename T>
+ostream& operator<<(ostream& os, const vector<T>& vec) {
+    os << "[";
+    for (size_t i = 0; i < vec.size(); i++) {
+        os << vec[i];
+        if (i < vec.size() - 1) {
+            os << " ";
+        }
+    }
+    os << "]";
+    return os;
+}
+
+
+vector<char> createrandarray(int length) {
+    minstd_rand0 engine; //Инициализация функции генерации числа
+    uniform_int_distribution<int> distribution(33, 126); //Добавление генерации в пределах двух чисел
+
+    vector<char> randomarray;
+    for (size_t i = 1; i <= length; i++) {
+        engine.seed(random_device{}()); //Добавление рандомного паттерна генерации
+        randomarray.push_back(distribution(engine));
+    }
+    return randomarray;
+}
+
+void shiftVector(vector<char>& vec, int shift) {
+    if (shift < 0) {
+        shift = vec.size() + shift;
+    }
+    for (int i = 0; i < shift; i++) {
+        char temp = vec.back();
+        vec.pop_back();
+        vec.insert(vec.begin(), temp);
+    }
+}
+
+void printEvenOddArr1(vector<int>& arr1) {
+    vector<int> evenNumbers;
+    
+    int counter = 0;
+    for (size_t i = 0; i < arr1.size(); i += 2) {
+        if (arr1[i] % 2 == 0) {
+            evenNumbers.push_back(arr1[i]);
+            counter += 1;
+        }
+    }
+    cout << "Amount of even number on odd element: " << counter << endl;
+    cout << "This numbers are: ";
+    for(int number : evenNumbers) {
+        cout << number << " ";
+    }
+    cout << endl;
+}
+
+void Duplicates(vector<int>& arr1, vector<int>& arr2) {
+    vector<pair<int, int>> povtor;
+    set<int> arr2Set;
+    for (int chislo : arr2) {
+        arr2Set.insert(chislo);
+    }
+
+    for (int number : arr2Set) {
+        int counter = 0;
+        for (int duplicate : arr1) {
+            if (number == duplicate) {
+                counter += 1;
+
+            }
+
+        }
+        if (counter > 0) {
+            povtor.push_back({ number, counter });
+        }
+
+    }
+    
+    if (povtor.size() == 0) {
+        cout << "No duplicates in these arrays!!!";
+    }
+    else {
+        for (pair<int, int> element : povtor) {
+            cout << "Number " << element.first << " have been met this times ---> " << element.second << endl;
+    }
+    }
+    cout << endl;
+}
+
+
+vector<int> arrayBigNum(int length) {
+    minstd_rand0 engine; //Инициализация функции генерации числа
+    uniform_int_distribution<int> distribution(1000, 9000); //Добавление генерации в пределах двух чисел
+
+    vector<int> randomarray;
+    for (size_t i = 1; i <= length; i++) {
+        engine.seed(random_device{}()); //Добавление рандомного паттерна генерации
+        randomarray.push_back(distribution(engine));
+    }
+    return randomarray;
+}
+
+int sumOfArray(vector<int> vec) {
+    int sum = 0;
+    for (int chislo : vec) {
+        sum += chislo;
+    }
+
+    return sum;
+}
+
+
+vector<int> vectorSorting(vector<int>& vec) { //12979
+    cout << endl;
+    vector<int> finalVector;
+    for (int chislo : vec) {
+        vector<int> savenumbers = {};
+        while (chislo > 0) {
+            savenumbers.push_back(chislo % 10);
+            chislo /= 10;
+
+
+        }
+        vector<int> correctNums;
+        while (!savenumbers.empty()) {
+            int origSaveNumSize = savenumbers.size();
+            int minValue = *min_element(savenumbers.begin(), savenumbers.end());
+            correctNums.push_back(minValue);
+            auto it = savenumbers.begin();
+            while (it < savenumbers.end()) {
+                if (*it == minValue) {
+                    savenumbers.erase(it);
+                    break;
+                }
+                ++it;
+            }
+        }
+        string result;
+        
+        for (const auto& num : correctNums) {
+            result += to_string(num);
+        }
+        finalVector.push_back(stoi(result));
+    }
+    return finalVector;
+}
+
+
+
+
+int main() {
+
+    minstd_rand0 engine; //Инициализация функции генерации числа
+    engine.seed(random_device{}()); //Добавление рандомного паттерна генерации
+
+
+    uniform_int_distribution<int> distribution(15, 30); //Добавление генерации в пределах двух чисел
+    int amountForArr1 = distribution(engine);
+    
+    // Первое задание
+    vector<int> arr1;
+    uniform_int_distribution<int> distributionforARRS(10,30);
+    for (size_t i = 1; i <= amountForArr1; i++) {
+        arr1.push_back(distributionforARRS(engine));
+    }
+
+    vector<int> arr2;
+    for (size_t i = 1; i <= 5; i++) {
+        arr2.push_back(distributionforARRS(engine));
+    }
+   
+
+   cout << "First number: " << endl;
+    cout << arr1 <<" <-- Initial arr1 "<< endl;
+    cout << arr2 << " <-- Initial arr2 " <<endl << endl;
+
+
+    cout << "Second number: " << endl;
+    printEvenOddArr1(arr1);
+    cout << endl;
+
+   
+
+    cout << "Third number: " << endl;
+    Duplicates(arr1, arr2);
+
+
+    cout << "Fourth number: " << endl;
+    vector<char> copy = createrandarray(5);
+    cout << copy<< endl;
+    shiftVector(copy, 3);
+    cout << copy << endl << endl;
+ 
+
+    cout << "Fifth number: " << endl;
+    vector<int> prikol = arrayBigNum(50);
+    cout << prikol;
+    cout << " Sum of inital array --> " << sumOfArray(prikol);
+    
+    vector<int> new_prikol = vectorSorting(prikol);
+    stable_sort(new_prikol.begin(), new_prikol.end());
+    cout << new_prikol;
+    cout << " Sum of processed array --> " << sumOfArray(new_prikol);
+    return 0;
+}

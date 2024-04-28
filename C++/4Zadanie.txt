@@ -1,0 +1,104 @@
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+using namespace std;
+
+
+bool tit_for_tat(int round_number, const vector<bool>& self_choices, const vector<bool>& enemy_choices) {
+    // В первом раунде всегда сотрудничаем.
+    if (round_number == 0) {
+        return true;
+    }
+    // В последующих раундах копируем выбор противника из предыдущего раунда.
+    return enemy_choices[round_number - 1];
+}
+
+
+bool always_betray(int round_number, const vector<bool>& self_choices, const vector<bool>& enemy_choices) {
+    // Всегда выбираем предательство.
+    return false;
+}
+
+
+bool always_cooperate(int round_number, const vector<bool>& self_choices, const vector<bool>& enemy_choices) {
+    // Всегда выбираем сотрудничество.
+    return true;
+}
+
+
+void play_game(bool (*strategy1)(int, const vector<bool>&, const vector<bool>&),
+    bool (*strategy2)(int, const vector<bool>&, const vector<bool>&)) {
+    // Инициализируем генератор случайных чисел
+    srand(time(nullptr));
+
+    // Генерируем случайное количество раундов от 100 до 200
+    int num_rounds = rand() % 101 + 100;
+
+    // Векторы для отслеживания выборов стратегий
+    vector<bool> strategy1_choices(num_rounds);
+    vector<bool> strategy2_choices(num_rounds);
+
+    // Счетчики очков
+    int score1 = 0;
+    int score2 = 0;
+
+    // Проводим каждый раунд
+    for (int round = 0; round < num_rounds; round++) {
+        // Выборы стратегий
+        bool choice1 = strategy1(round, strategy1_choices, strategy2_choices);
+        bool choice2 = strategy2(round, strategy2_choices, strategy1_choices);
+
+        // Сохраняем выборы в векторах
+        strategy1_choices[round] = choice1;
+        strategy2_choices[round] = choice2;
+
+        // Подсчитываем очки за раунд
+        if (choice1 && choice2) {
+            // Оба сотрудничают
+            score1 += 24;
+            score2 += 24;
+        }
+        else if (!choice1 && !choice2) {
+            // Оба предают
+            score1 += 4;
+            score2 += 4;
+        }
+        else if (!choice1 && choice2) {
+            // Стратегия 1 предает, стратегия 2 сотрудничает
+            score1 += 20;
+            score2 += 0;
+        }
+        else {
+            // Стратегия 1 сотрудничает, стратегия 2 предает
+            score1 += 0;
+            score2 += 20;
+        }
+    }
+
+    // Выводим результаты игры
+    cout << "Количество раундов: " << num_rounds << endl;
+    cout << "Очки стратегии 1: " << score1 << endl;
+    cout << "Очки стратегии 2: " << score2 << endl;
+}
+
+int main() {
+    setlocale(LC_ALL, "Russian");
+    // Симулируем игру между стратегиями Тит-фор-тат и Предательство всегда
+    cout << "Игра между стратегиями Тит-фор-тат и Предательство всегда:" << endl;
+    play_game(tit_for_tat, always_betray);
+
+    cout << endl;
+
+    // Симулируем игру между стратегиями Всегда сотрудничать и Предательство всегда
+    cout << "Игра между стратегиями Всегда сотрудничать и Предательство всегда:" << endl;
+    play_game(always_cooperate, always_betray);
+
+    cout << endl;
+
+    // Симулируем игру между стратегиями Тит-фор-тат и Всегда сотрудничать
+    cout << "Игра между стратегиями Тит-фор-тат и Всегда сотрудничать:" << endl;
+    play_game(tit_for_tat, always_cooperate);
+
+    return 0;
+}

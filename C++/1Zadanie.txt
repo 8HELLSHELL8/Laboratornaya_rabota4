@@ -1,0 +1,133 @@
+#include <iostream>
+#include <cmath>
+#include <limits>
+#include <iomanip>
+
+using namespace std;
+
+double f(double x) {
+    return x * x - (2 - exp(x));
+}
+
+double df(double x) {
+    return 2 * x + exp(x);
+}
+
+double bisection(double a, double b, double epsilon) {
+    int N = 0;
+    double c;
+
+    while (true) {
+        N++;
+        c = (a + b) / 2;
+        double fc = f(c);
+        if (abs(fc) < epsilon) {
+            break;
+        }
+        if (fc * f(a) < 0) {
+            b = c;
+        }
+        else {
+            a = c;
+        }
+    }
+    cout << "Number of iterations: " << N << endl;
+    return c;
+}
+
+double Newton(double x0, double epsilon) {
+    double x = x0;
+    int N = 0;
+
+    cout << fixed << setprecision(6); // set output precision to 6 decimal places
+
+    cout << "N" << setw(10) << "x_n" << setw(10) << "x_(n+1)" << setw(15) << "x_(n+1) - x_n" << endl;
+
+    while (true) {
+        N++;
+
+        double x_next = x - f(x) / df(x);
+
+        cout << N << setw(10) << x << setw(10) << x_next << setw(15) << x_next - x << endl;
+
+        if (abs(x_next - x) < epsilon) {
+            break;
+        }
+
+        x = x_next;
+    }
+
+    return x;
+}
+
+double iterate(double x0, double epsilon) {
+    int N = 0; // number of iterations
+
+    double x = x0;
+
+    while (true) {
+        N++;
+
+        double x_next = x - f(x) / (2 * x + exp(x)); // iteration formula
+
+        cout << N << setw(10) << x << setw(10) << x_next << setw(15) << x_next - x << endl;
+
+        if (abs(x_next - x) < epsilon) {
+            break;
+        }
+
+        x = x_next;
+    }
+
+    return x;
+}
+
+
+int main() {
+    double epsilon = 1e-4; // desired precision
+    int MethodType;
+    cout << "Choose your solution method: 1-bisection, 2-Newton, 3-Iterations"<< endl;
+    cin >> MethodType;
+    if (MethodType == 1) {
+        double a, b;
+        cout << "input start coordinate - ";
+        cin >> a;
+        cout << "input start coordinate - ";
+        cin >> b;
+        
+        double root = bisection(a, b, epsilon);
+
+        cout << "Root: " << root << endl;
+
+        cout << "Initial interval: [" << a << ", " << b << "]" << endl;
+        cout << "Final interval: [" << a << ", " << root << "]" << endl;
+        cout << "Width of the final interval: " << root - a << endl;
+
+    } else if (MethodType == 2) {
+        double x0 = 0.5; // initial guess
+        
+
+        double root = Newton(x0, epsilon);
+
+        cout << "Root: " << root << endl;
+
+    }else if (MethodType == 3){
+
+        double x0 = 0.5; // initial guess
+
+        cout << fixed << setprecision(6); // set output precision to 6 decimal places
+
+        cout << "N" << setw(10) << "x_n" << setw(10) << "x_(n+1)" << setw(15) << "x_(n+1) - x_n" << endl;
+
+        double root = iterate(x0, epsilon);
+
+        cout << "Root: " << root << endl;
+
+    }else {
+        cout << "Wrong input!!!";
+    }
+    
+    
+    
+    return 0;
+}

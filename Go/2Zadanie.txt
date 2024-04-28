@@ -1,0 +1,147 @@
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"sort"
+	"strconv"
+	"time"
+)
+
+func randomCharArray(length int) []rune {
+	// Инициализация случайного генератора один раз перед функцией
+	rand.Seed(time.Now().UnixNano())
+	randomArray := make([]rune, length)
+	for i := 0; i < length; i++ {
+		randomArray[i] = rune(rand.Intn(94) + 33) // Генерация случайного символа от 33 до 126
+	}
+	return randomArray
+}
+
+func shiftVector(vec []rune, shift int) {
+	shift = shift % len(vec)
+	if shift < 0 {
+		shift += len(vec)
+	}
+	vec = append(vec[len(vec)-shift:], vec[:len(vec)-shift]...)
+}
+
+func printEvenOddArr1(arr1 []int) {
+	var evenNumbers []int
+	counter := 0
+	for i := 0; i < len(arr1); i += 2 {
+		if arr1[i]%2 == 0 {
+			evenNumbers = append(evenNumbers, arr1[i])
+			counter++
+		}
+	}
+	fmt.Printf("Amount of even numbers on odd elements: %d\n", counter)
+	fmt.Println("These numbers are:", evenNumbers)
+}
+
+func Duplicates(arr1, arr2 []int) {
+	povtor := make(map[int]int)
+	for _, num := range arr2 {
+		povtor[num]++
+	}
+
+	for _, num := range arr1 {
+		if count, ok := povtor[num]; ok {
+			povtor[num] = count + 1
+		}
+	}
+
+	duplicateExists := false
+	for num, count := range povtor {
+		if count > 1 {
+			fmt.Printf("Number %d appears %d times in both arrays\n", num, count-1)
+			duplicateExists = true
+		}
+	}
+	if !duplicateExists {
+		fmt.Println("No duplicates in these arrays!")
+	}
+}
+
+func randomBigNumArray(length int) []int {
+	// Инициализация случайного генератора
+	rand.Seed(time.Now().UnixNano())
+	randomArray := make([]int, length)
+	for i := 0; i < length; i++ {
+		randomArray[i] = rand.Intn(8001) + 1000 // Генерация случайного числа от 1000 до 9000
+	}
+	return randomArray
+}
+
+func sumOfArray(vec []int) int {
+	sum := 0
+	for _, num := range vec {
+		sum += num
+	}
+	return sum
+}
+
+func vectorSorting(vec []int) []int {
+	var finalVector []int
+	for _, num := range vec {
+		var savenumbers []int
+		for num > 0 {
+			savenumbers = append(savenumbers, num%10)
+			num /= 10
+		}
+		sort.Ints(savenumbers) // Сортировка цифр в возрастающем порядке
+		var result string
+		for _, digit := range savenumbers {
+			result += strconv.Itoa(digit)
+		}
+		finalNum, _ := strconv.Atoi(result)
+		finalVector = append(finalVector, finalNum)
+	}
+	return finalVector
+}
+
+func main() {
+	// Инициализация случайного генератора перед использованием
+	rand.Seed(time.Now().UnixNano()) 
+
+	// Создание массива случайных чисел и строк
+	amountForArr1 := rand.Intn(16) + 15 // Случайное число от 15 до 30
+
+	// Первое задание
+	arr1 := make([]int, amountForArr1)
+	for i := range arr1 {
+		arr1[i] = rand.Intn(21) + 10 // Случайное число от 10 до 30
+	}
+
+	arr2 := make([]int, 5)
+	for i := range arr2 {
+		arr2[i] = rand.Intn(21) + 10 // Случайное число от 10 до 30
+	}
+
+	fmt.Println("First number:")
+	fmt.Printf("%v <-- Initial arr1\n", arr1)
+	fmt.Printf("%v <-- Initial arr2\n\n", arr2)
+
+	fmt.Println("Second number:")
+	printEvenOddArr1(arr1)
+	fmt.Println()
+
+	fmt.Println("Third number:")
+	Duplicates(arr1, arr2)
+
+	fmt.Println("Fourth number:")
+	copy := randomCharArray(5)
+	fmt.Printf("%c\n", copy)
+	shiftVector(copy, 3)
+	fmt.Printf("%c\n\n", copy)
+
+	fmt.Println("Fifth number:")
+	prikol := randomBigNumArray(50)
+	fmt.Println(prikol)
+	fmt.Printf("Sum of initial array --> %d\n", sumOfArray(prikol))
+
+	newPrikol := vectorSorting(prikol)
+	sort.Ints(newPrikol)
+	fmt.Println(newPrikol)
+	fmt.Printf("Sum of processed array --> %d\n", sumOfArray(newPrikol))
+}

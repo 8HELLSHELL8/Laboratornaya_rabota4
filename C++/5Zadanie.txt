@@ -1,0 +1,78 @@
+#include <iostream>
+#include <random>
+using namespace std;
+
+
+ostream& operator<<(ostream& os, const vector<int>& vec) {
+	os << "[ ";
+	for (size_t i = 0; i < vec.size(); i++) {
+		os << vec[i];
+		 if (i < vec.size() - 1) {
+			os << " ";
+		       }
+		    }
+	os << " ]";
+	return os;
+}
+
+
+int generateM(int chislo_p, int chislo_q) {
+	if (chislo_p % 4 == 3 % 4 && chislo_q % 4 == 3 % 4 && chislo_p < chislo_q) {
+		return chislo_p * chislo_q;
+	}
+	else {
+		cout << "Condition exception!!! ";
+		return 0;
+	}
+
+}
+
+int generateCoPrime(int chislo_M) {
+
+	minstd_rand0 engine; //Инициализация функции генерации числа
+	engine.seed(random_device{}()); //Добавление рандомного паттерна генерации
+	uniform_int_distribution<int> distribution(2, chislo_M - 1); //Добавление генерации в пределах двух чисел
+
+	int newNumber = distribution(engine);
+	bool isnotFound = true;
+	while (isnotFound) {
+		newNumber = distribution(engine);
+		int counter = 0;
+		for (size_t i = 2; i < newNumber; i++) {
+			if (chislo_M % i == 0 && newNumber % i == 0) {
+				counter += 1;
+			}
+		}
+		if (counter == 0) {
+			isnotFound = false;
+		}
+	}
+	return newNumber;
+}
+
+
+vector<int> randomNumbersArray(int p, int q, int M, int length) {
+	vector<int> ranNum;
+	int x0 = generateCoPrime(M); // Генерируем ко-пример с модулем M
+	ranNum.push_back(x0);
+	for (size_t n = 1; n <= length; n++) {
+		int x_next = int(pow(ranNum[n - 1], 2)) % M;
+		ranNum.push_back(x_next);
+	}
+	return ranNum;
+}
+
+
+int main() {
+	int p, q;
+	cout << "Input your p number: ";
+	cin >> p;
+	cout << "Input your q number: ";
+	cin >> q;
+	int chisloM = generateM(p, q);
+	cout << chisloM << endl;
+	int startNumber = generateCoPrime(chisloM);
+	cout << startNumber << endl;
+	cout << randomNumbersArray(p, q, chisloM, 5);
+	return 0;
+}

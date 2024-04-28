@@ -1,0 +1,65 @@
+package main
+
+import (
+	"fmt"
+	"math"
+	"math/rand"
+	"time"
+)
+
+// generateM - функция, которая генерирует число M.
+func generateM(p, q int) int {
+	if p%4 == 3 && q%4 == 3 && p < q {
+		return p * q
+	}
+	fmt.Println("Condition exception!")
+	return 0
+}
+
+// generateCoPrime - функция, которая генерирует число, содержащееся в диапазоне от 2 до chisloM - 1, и не имеющее общих делителей с chisloM.
+func generateCoPrime(chisloM int) int {
+	rand.Seed(time.Now().UnixNano()) // Инициализация генератора случайных чисел
+	distribution := rand.Intn(chisloM - 2) + 2
+
+	for {
+		newNumber := distribution
+		counter := 0
+		for i := 2; i < newNumber; i++ {
+			if chisloM%i == 0 && newNumber%i == 0 {
+				counter++
+			}
+		}
+		if counter == 0 {
+			return newNumber
+		}
+		distribution = rand.Intn(chisloM - 2) + 2
+	}
+}
+
+// randomNumbersArray - функция, которая генерирует массив случайных чисел.
+func randomNumbersArray(p, q, M, length int) []int {
+	ranNum := make([]int, length+1)
+	x0 := generateCoPrime(M) // Генерируем ко-пример с модулем M
+	ranNum[0] = x0
+
+	for n := 1; n <= length; n++ {
+		xNext := int(math.Pow(float64(ranNum[n-1]), 2)) % M
+		ranNum[n] = xNext
+	}
+
+	return ranNum
+}
+
+func main() {
+	var p, q int
+	fmt.Print("Input your p number: ")
+	fmt.Scan(&p)
+	fmt.Print("Input your q number: ")
+	fmt.Scan(&q)
+	chisloM := generateM(p, q)
+	fmt.Println(chisloM)
+	startNumber := generateCoPrime(chisloM)
+	fmt.Println(startNumber)
+	ranNumbers := randomNumbersArray(p, q, chisloM, 5)
+	fmt.Println(ranNumbers)
+}

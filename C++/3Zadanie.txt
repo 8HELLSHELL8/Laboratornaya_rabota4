@@ -1,0 +1,275 @@
+#include <iostream>
+#include <vector>
+#include <random>
+#include <algorithm>
+#include <cmath>
+using namespace std;
+
+ostream& operator<<(ostream& os, const vector<int>& vec) {
+	os << "[ ";
+	for (size_t i = 0; i < vec.size(); i++){
+		os << vec[i];
+		os << " ";
+	}
+	os << "] ";
+	return os;
+}
+
+
+vector<int> generateFirstArray() {
+	minstd_rand0 engine;
+	engine.seed(random_device{}());
+	uniform_int_distribution<int> distribution(1, 100);
+	vector<int> firstArray;
+	while (firstArray.size() != 50) {
+		firstArray.push_back(distribution(engine));
+	}
+	return firstArray;
+}
+
+vector<int> generateSecondArray() {
+	minstd_rand0 engine;
+	engine.seed(random_device{}());
+	uniform_int_distribution<int> distribution(1, 100);
+	vector<int> secondArray;
+	while (secondArray.size() != 100) {
+		secondArray.push_back(distribution(engine));
+	}
+	return secondArray;
+}
+
+vector<int> generateThirdArray() {
+	minstd_rand0 engine; 
+	engine.seed(random_device{}()); 
+	uniform_int_distribution<int> distribution(1, 100); 
+	vector<int> thirdArray;
+	while (thirdArray.size() != 1000) {
+		thirdArray.push_back(distribution(engine));
+	}
+	return thirdArray;
+}
+
+double average(const vector<int>& vec) {
+	double sum = 0;
+	for (int chislo : vec) {
+		sum += chislo;
+	}
+	sum = sum / vec.size();
+	return sum;
+}
+
+double stdDev(const vector<int>& vec) {
+	double avgNum = average(vec);
+	double sum = 0.0;
+	for (double chislo : vec) {
+		sum += pow((chislo - avgNum), 2);
+	}
+	return sqrt(sum/(vec.size()-1));
+}
+
+int frequency(const vector<int>& vec) {
+	int volume = vec.size();
+	int amountOfIntervals = floor(1 + log2(volume));
+	return amountOfIntervals;
+}
+
+double Delta(const vector<int>& vec) {
+	int maxNum = *max_element(vec.begin(), vec.end());
+	int minNum = *min_element(vec.begin(), vec.end());
+	int n = frequency(vec);
+	return ceil((maxNum - minNum) / n);
+}
+
+//double xiSquare(const vector<int>& vector1) {
+//	vector<int> vec = vector1;
+//	vector<pair<int, int>> jANDnj;
+//	double step = Delta(vector1);
+//	int numberOfIntervals = frequency(vector1);
+//	int startNumber = *min_element(vector1.begin(), vector1.end());
+//	for (size_t i = 1; i <= numberOfIntervals; i++) {
+//		int counter = 0;
+//		int index = 0;
+//		for (int chislo : vector1) {
+//			if (startNumber<= chislo && chislo <= (startNumber+step)) {
+//				counter += 1;
+//				vec.erase(vec.begin()+index);
+//				index += 1;
+//			}
+//			jANDnj.push_back({ i,counter });
+//		}
+//	}
+//	cout << jANDnj.size();
+//	
+//	/*
+//	for (size_t i = 1;i <= numberOfIntervals;i++) {
+//		int counter = 0;
+//		for(int chislo : vec){
+//			if (startNumber <= chislo && chislo < (startNumber + step)) {
+//				counter += 1;
+//			}
+//		}
+//		jANDnj.push_back({ i, counter });
+//		startNumber = startNumber + step;
+//	}
+	/*bool isCorrect = true;
+	while (!isCorrect) {
+		int counter = 0;
+		
+		for (size_t i = 1; i <= numberOfIntervals; i++) {
+		
+			if (jANDnj[i].second < 5) {
+				if (jANDnj[i].first == 1) {
+					jANDnj[i + 1].second += jANDnj[i].second;
+					jANDnj.erase(jANDnj.begin());
+				} else if (jANDnj[i].first > 1) {
+					jANDnj[i - 1].second += jANDnj[i].second;
+					jANDnj.erase(jANDnj.begin() + (i - 1));
+				} else {
+					counter += 1;
+
+				}
+			}
+			
+			if (counter == jANDnj.size()) {
+				isCorrect = true;
+			}
+		}
+	}*/
+//	
+//
+//	*/
+//	
+//
+//	return true;
+//}
+
+void noLessProc(vector<pair<int,int>>& vec, vector<double>& teoretver) {
+	
+	int len = vec.size() - 1;
+	for (size_t i = len; i > 0; i--) {
+		if (vec[i].second < 5) {
+			if (i != 0) {
+				vec[i - 1].second += vec[i].second;
+				vec.erase(vec.begin() + i);
+				teoretver[i - 1] += teoretver[i];
+				teoretver.erase(teoretver.begin() + i);
+			}
+		}
+	}
+	if (vec[0].second < 5) {
+		vec[1].second += vec[0].second;
+		vec.erase(vec.begin());
+		teoretver[1] += teoretver[0];
+		teoretver.erase(teoretver.begin());
+	}
+}
+
+double xi_pdf(int k, double alpha) {
+	// Calculate the xi probability density function
+	double pdf = 0.0;
+	for (int i = 0; i <= k; i++) {
+		pdf += pow(-1, i) * pow(alpha, i) * exp(-alpha) / tgamma(i + 1);
+	}
+	return pdf;
+}
+
+double xiCriticalValue(int freedomDegree, double alpha) {
+	// Calculate the critical value 
+	double critical_value = 0.0;
+	for (int i = 0; i < freedomDegree; i++) {
+		critical_value += pow(xi_pdf(i, alpha), -1);
+	}
+	return critical_value;
+}
+
+
+void xiSquare(vector<int>& vec) {
+	
+	int originalVectorLength = vec.size();
+	double step = Delta(vec);
+	int numberOfIntervals = frequency(vec);
+	int startNumber = *min_element(vec.begin(), vec.end());
+	int minNumVec = startNumber;
+	int maxNumVec = *max_element(vec.begin(), vec.end());
+	vector<pair<int,int>> nj;
+	vector<double> pj;
+	for (size_t i = 1; i <= numberOfIntervals; i++) {
+		int counter = 0;
+		for (size_t k = 0; k < vec.size(); k++) {
+			if (startNumber <= vec[k] && vec[k] <= (startNumber + step)) {
+				counter += 1;
+				vec.erase(vec.begin() + k);
+			}
+		}
+		pj.push_back(((startNumber+step)- startNumber)/(maxNumVec - minNumVec));
+		nj.push_back({ i, counter });
+		startNumber += step;
+	}
+
+	double sum = 0;
+	for (double chislo : pj) {
+		sum += chislo;
+
+	}
+	if (sum != 1) {
+		double saveValue = *pj.rbegin();
+		pj.erase(pj.begin()+pj.size()-1);
+		pj.push_back(saveValue + double(1 - sum));
+
+	}
+
+	vector<double> PTJ;
+	for (size_t i = 0; i < nj.size(); i++) {
+		PTJ.push_back(originalVectorLength * pj[i]);
+	}
+	
+	vector<double> xi2;
+	for (size_t i = 0; i<PTJ.size();i++) {
+		xi2.push_back((pow(nj[i].second - PTJ[i], 2))/ PTJ[i]);
+
+	}
+	
+	double resultXI2 = 0;
+	for (double chislo : xi2) {
+		resultXI2 += chislo;
+		
+	}
+	
+
+	double CritValue = xiCriticalValue(PTJ.size() - 1, 0.05);
+	if (CritValue < resultXI2) {
+		cout << "The array is distributed normally " <<  endl;
+
+		cout << "Expected number - " << PTJ.size() - 1 << endl;
+
+		cout << "Practical number - " << resultXI2 / xi2.size() << endl;
+		
+	}
+	else {
+		cout << "The array is distributed evenly " << endl;
+
+		cout << "Expected number - " << PTJ.size() - 1 << endl;
+
+		cout << "Practical number - " << resultXI2 / xi2.size() << endl;
+
+	}
+
+	
+}
+
+
+int main() {
+	vector<int> firstArray = generateFirstArray();
+	vector<int> SecondArray = generateSecondArray();
+	vector<int> ThirdArray = generateThirdArray();
+	cout << "***Freedom degree number is equal to Expected number***" << endl << endl;
+
+	xiSquare(firstArray);
+	cout << endl;
+	xiSquare(SecondArray);
+	cout << endl;
+	xiSquare(ThirdArray);
+	cout << endl;
+
+	return 0;
+}
